@@ -1,0 +1,194 @@
+Krita Setup: The Fedora Version
+
+Preamble
+
+To contribute to the Krita project, the first step one should take is to build the program from the source code. This is… easier said than done (depending on the state of the latest Krita repo). 
+
+The Krita documentation has some excellent instructions for this: 
+https://docs.krita.org/en/untranslatable_pages/building_krita.html#building-krita-from-source
+
+– with some quirks which this alternate/supplementary documentation is written to address.
+
+This guide takes an alternative and thorough approach to building Krita; via Fedora.
+
+Justification
+
+The later Krita versions include some libraries that are not included in Ubuntu’s package manager, Apt, which can make installation difficult.
+
+Fedora Workstation is a linux distribution which is intended for software developers, the packages of which are kept more up to date than Ubuntu’s (even accounting for backporting). This reduces the headache of attempting to import Krita’s many dependencies.
+
+So, without further ado, a thorough guide to building Krita from source.
+
+Instructions
+
+Note: These instructions assume Windows but should be fairly universal.
+
+1. Download your VM sandbox manager of choice. Mine is VirtualBox: https://www.virtualbox.org/
+
+2. Download an ISO of Fedora Workstation. https://getfedora.org/en/workstation/download/
+
+3. Set up a Fedora VM on your VM Manager. The following sub-instructions cover VirtualBox.
+
+	3a. Add a new machine on VirtualBox.
+
+	3b. You will be presented with a window that allows you to select the OS and ISO of the machine, along with setting some specifications. This is called ‘guided mode’. I prefer ‘expert mode’, which can be accessed by pressing the so-named key at the bottom of the window. This will take you to a more condensed window.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	3c. Set the ‘name’ to something meaningful; Virtualbox will automatically detect the OS from the name in some cases. Also select the folder where you wish the VM to be created, and the location of the ISO image you downloaded in step 2.
+	3d. Ignore ‘unattended install’ and open the ‘hardware’ tab. 
+	You will be presented with sliders for memory and processors. Set these as high within the green zone as you can for the best performance without compromising that of your PC outside of the virtual machine. 
+	
+
+
+
+
+
+
+
+
+
+
+	3e. Create a virtual hard disk on the VM to give you some space to play with, which will be needed to download the Krita source files and their dependencies. More space on the VM is better, mine has 50GB reserved for it. 
+	3f. Press ‘finish and the VM will be created. Click on it in the VM menu to start it, and follow the steps given for the Fedora installation to finish. Remember the password that you supply, as you will need it both to login and any sudo commands that you use.
+
+4. From here on we’ll be mirroring the tutorial give in the Krita documentation. So, quoting from there:
+
+The most convenient layout is as follows:
+    • $HOME/kritadev/krita – the source code
+    • $HOME/kritadev/build – the location where you compile krita
+    • $HOME/kritadev/install – the location where you install krita to and run krita from
+we will call the “kritadev” folder your build root.
+Note: type in what’s shown after ‘>’ in the following commands
+	you@yourcomputer:~>cd
+	you@yourcomputer:~>mkdir kritadev
+	you@yourcomputer:~/>cd kritadev
+	you@yourcomputer:~/kritadev> mkdir build
+	you@yourcomputer:~/kritadev> mkdir install
+5. Open a terminal and enter the build root. Clone Krita from kde’s git infrastructure (not github):
+you@yourcomputer:~/kritadev> git clone https://invent.kde.org/graphics/krita.git
+6. We will build Krita with Cmake, but before we can start the build, we need to download Krita’s dependencies. Fedora, uses ‘dnf’ to handle packages.
+
+Input the following:
+you@yourcomputer:~/kritadev/build>sudo dnf install build-dep krita
+
+
+Then, in the ‘build’ folder, run Cmake:
+you@yourcomputer:~/kritadev/build>cmake ../krita \
+        -DCMAKE_INSTALL_PREFIX=$HOME/kritadev/install  \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DKRITA_DEVS=ON
+The build-dep command is unlikely to have acquired all dependencies needed for building. Cmake will throw errors such as:
+
+-- The following RECOMMENDED packages have not been found
+
+or not being able to find Cmake files for various packages. 
+
+This can be fixed by downloading these dependencies, where possible, through dnf. First port of call should be to run dnf search. For example if I am looking for harfbuzz (a required dependency):
+
+dnf search -C harfbuzz
+
+which will return a list of related packages:
+you can then find the required package and install it using:
+sudo dnf install [package] 
+
+You will have to interpret carefully so that you install the correct package. We are installing these packages for the purpose of development. So we will be looking for a dev package. Also, you will need to chose the 64bit version (.x86_64) versus the 32bit version depending on your Fedora OS.
+
+You may also find the packages directly on the Fedora package website https://packages.fedoraproject.org/.
+
+These can then be installed via dnf in the same manner as previously discussed.
+
+Not all dependencies associated with Krita are held in the Fedora package manager. Or, if so, the version in the package manager may be out of date. 
+
+The first course of action is to update Fedora to the latest distribution, even if this means upgrading to a beta build. 
+
+Some dependencies are still not in dnf, or any package manager. Such as Immer, Lager, and Zug, which Krita recently became dependent on. 
+
+These packages will have to be compiled and build from source using Cmake. 
+
+To do this, go to the github page for these repositories. We’ll use Immer as an example. 
+
+Immer repo link:
+https://github.com/arximboldi/immer
+
+[by Arximiboldi, do not confuse with the ReactJS Immer library, which is entirely different and has no relation to Krita or C++]. 
+
+It is ideal to keep these downloaded repos in their own folder, for the sake of organisation. 
+
+Input the following commands to terminal.
+
+Cd ~
+mkdir lib
+cd lib
+git clone https://github.com/arximboldi/immer
+
+Enter into the repository:
+
+cd immer
+
+then input the following 
+
+mkdir -p build && cd build
+cmake .. && sudo make install
+to install via Cmake. 
+
+Do the following with any additional packages that need to be installed, that cannot be installed via dnf. (Currently, Zug has an incomplete set of instructions for install, but the given commands above will suffice). 
+
+This is by far the hardest part of building krita from source, and may take several days, or even weeks. Persevere! It will work eventually. 
+
+7. When all dependencies are installed, run the build command again.
+
+you@yourcomputer:~/kritadev/build>cmake ../krita \
+        -DCMAKE_INSTALL_PREFIX=$HOME/kritadev/install  \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DKRITA_DEVS=ON
+Note: the krita documentation makes a point of installing Qt5 SQLite, but this is not present on dnf, and does not seem to be required when running Fedora as I’ve been able to install and open Krita without. 
+
+8. Find out how many CPU cores the VM has assigned. This will have been assigned when the VM was created, but it can be quickly re-acquired by running:
+
+cat /proc/cpuinfo | grep processor | wc -l
+
+which will output the number of available cores.
+
+Then, make Krita with the available cores by running:
+
+make -jX
+
+where X is the amount of cores available. 
+
+This will take several hours, even with multiple cores assigned to the job. Patience is required. 
+
+9. Finally, install and run krita.
+
+Within the build folder:
+
+make install
+
+This will also take some time. 
+
+To run krita, run 
+
+../install/bin/krita
+
+and you are now ready to go!
+
+Good luck. 
