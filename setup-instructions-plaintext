@@ -33,41 +33,10 @@ Note: These instructions assume Windows but should be fairly universal.
 
 	3b. You will be presented with a window that allows you to select the OS and ISO of the machine, along with setting some specifications. This is called ‘guided mode’. I prefer ‘expert mode’, which can be accessed by pressing the so-named key at the bottom of the window. This will take you to a more condensed window.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	3c. Set the ‘name’ to something meaningful; Virtualbox will automatically detect the OS from the name in some cases. Also select the folder where you wish the VM to be created, and the location of the ISO image you downloaded in step 2.
 	3d. Ignore ‘unattended install’ and open the ‘hardware’ tab. 
 	You will be presented with sliders for memory and processors. Set these as high within the green zone as you can for the best performance without compromising that of your PC outside of the virtual machine. 
 	
-
-
-
-
-
-
-
-
-
-
 	3e. Create a virtual hard disk on the VM to give you some space to play with, which will be needed to download the Krita source files and their dependencies. More space on the VM is better, mine has 50GB reserved for it. 
 	3f. Press ‘finish and the VM will be created. Click on it in the VM menu to start it, and follow the steps given for the Fedora installation to finish. Remember the password that you supply, as you will need it both to login and any sudo commands that you use.
 
@@ -90,7 +59,6 @@ you@yourcomputer:~/kritadev> git clone https://invent.kde.org/graphics/krita.git
 
 Input the following:
 you@yourcomputer:~/kritadev/build>sudo dnf install build-dep krita
-
 
 Then, in the ‘build’ folder, run Cmake:
 you@yourcomputer:~/kritadev/build>cmake ../krita \
